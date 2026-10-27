@@ -38,7 +38,7 @@ SDC (STAC)  ──01──▶  NDSI_<year>_<month>.tif  ──03──▶  Snow_
 ```
 notebooks/
   01_NDSI_monthly_STAC.ipynb            monthly NDSI max/min/mean/count/qual from the SDC STAC catalogue
-  02_fit_snow_GLMM.R                    fit of the 4 seasonal GLMMs (lme4) -> data/model/glmm_R_coefs_saisons.csv
+  02_fit_snow_GLMM.R                    fit of the 4 seasonal GLMMs (lme4) -> data/model/glmm_coefficients_seasons.csv
   03_snow_GLMM_monthly.ipynb            binary monthly product (0 / 1 / 2) with the GLMM coefficients
   04_monthly_probability_fields.ipynb   monthly probability fields from the 1984–2021 binary products (run once)
   05_gapfilling_steps2-7.ipynb          gap-filling steps 2 to 7 -> final monthly product
@@ -46,17 +46,16 @@ utils/
   sdc_stac_utilities.py                 STAC loading, Landsat C2 / Sentinel-2 cloud masks, chunking, GeoTIFF writing
   snow_gapfill.py                       gap-filling steps 2 to 7
 data/
-  stations/dfCP.rds                     station data used to fit the GLMM (NDSI at the stations + snow depth)
-  model/glmm_R_coefs_saisons.csv        GLMM coefficients and cutoffs (output of 02)
+  stations/stations_ndsi_snow_depth.rds station data used to fit the GLMM (NDSI at the stations + snow depth)
+  model/glmm_coefficients_seasons.csv   GLMM coefficients and cutoffs (output of 02)
   aux/                                  layers on the NDSI grid: Switzerland / lake masks, land cover, elevation classes,
                                         summer snow mask, 12 monthly probability fields
-  sources/                              Switzerland border (swissBOUNDARIES3D), lakes, Mask_all, predstack_saison
-original_R/                             original R scripts and Python notebooks of the 1984–2021 products (reference)
+  sources/                              Switzerland border (swissBOUNDARIES3D), lakes, Switzerland mask, land cover / elevation classes
+  original_binary_stacks_dates.csv      date of each band of the original binary stacks 1984–2021 (Zenodo)
 outputs/                                created by the notebooks
 ```
 
 The notebooks are run from the `notebooks/` folder; all paths are relative to it.
-The text of the notebooks is in French; code and comments are in English.
 
 ---
 
@@ -64,13 +63,13 @@ The text of the notebooks is in French; code and comments are in English.
 
 | In this repository (`data/`) | |
 |---|---|
-| `stations/dfCP.rds` | 14,010 station observations 2014–2020 (510 stations): date, NDSI, snow depth (cm), elevation, land cover, season |
-| `model/glmm_R_coefs_saisons.csv` | fixed and random effects (AltC, Landcover) of the 4 seasonal GLMMs, TSS-optimal cutoff |
-| `aux/mask_all_ndsi_grid.tif` | 1 = Switzerland without lakes (the original `Mask_all`) |
-| `aux/landcover_ndsi_grid.tif`, `aux/altc_ndsi_grid.tif` | land cover (1 non forested, 2 sparsely forested, 3 forested) and elevation classes (1: < 500 m … 6: ≥ 2500 m) |
-| `aux/summer_mask_80.tif` | 1 = snow every summer (glaciers, permanent snow) |
-| `aux/proba_field_MM.tif` | monthly probability field of calendar month MM: 1 = snow in 100 % of the clear years, 2 = no snow in 100 % of the clear years (≥ 29 clear years, 1984–2021) |
-| `aux/mask_suisse_*.tif`, `aux/mask_lacs_*.tif` | Switzerland and lake masks used for the NDSI products |
+| `stations/stations_ndsi_snow_depth.rds` | 14,010 station observations 2014–2020 (510 stations): date (`Time`), NDSI at the station, snow depth in cm (`Snow`), elevation (`Alt`), land cover, season (`Saisons`), station code (`Stations`) |
+| `model/glmm_coefficients_seasons.csv` | fixed and random effects (AltC, Landcover) of the 4 seasonal GLMMs, TSS-optimal cutoff |
+| `aux/mask_switzerland_without_lakes.tif` | 1 = Switzerland without lakes |
+| `aux/landcover.tif`, `aux/elevation_classes.tif` | land cover (1 non forested, 2 sparsely forested, 3 forested) and elevation classes (1: < 500 m … 6: ≥ 2500 m) |
+| `aux/summer_snow_mask.tif` | 1 = snow every summer (glaciers, permanent snow) |
+| `aux/probability_field_MM.tif` | monthly probability field of calendar month MM: 1 = snow in 100 % of the clear years, 2 = no snow in 100 % of the clear years (≥ 29 clear years, 1984–2021) |
+| `aux/mask_switzerland_*.tif`, `aux/mask_lakes_*.tif` | Switzerland and lake masks used for the NDSI products |
 
 | On Zenodo (DOI: to be completed) | |
 |---|---|
@@ -123,7 +122,7 @@ Download the Zenodo files into `data/DEM/` and (optionally) `data/original_binar
 
 ### 02 – GLMM (R)
 
-One model per season, fitted with `lme4` on `data/stations/dfCP.rds`:
+One model per season, fitted with `lme4` on `data/stations/stations_ndsi_snow_depth.rds`:
 
 ```
 ThrX ~ NDSI + (NDSI | Stations) + (NDSI | AltC) + (NDSI | Landcover)
@@ -133,7 +132,7 @@ ThrX ~ NDSI + (NDSI | Stations) + (NDSI | AltC) + (NDSI | Landcover)
 * **Prediction:** fixed effect + random effects of elevation class and land cover (station effect excluded).
 * **Cutoff:** the probability threshold (0, 0.05, …, 1) that maximizes the TSS, giving DJF 0.75, MAM 0.45, JJA 0.60, SON 0.05.
 
-The coefficients are written to `data/model/glmm_R_coefs_saisons.csv` and used in Python.
+The coefficients are written to `data/model/glmm_coefficients_seasons.csv` and used in Python.
 
 ### 03 – Binary monthly product
 
@@ -157,7 +156,7 @@ Statistics per month (probability min/median/mean/max, number of snow, no snow a
   * 1 if it is snow in 100 % of its clear years;
   * 2 if it is no snow in 100 % of its clear years;
   * with at least 29 clear years required.
-* **Outputs:** `data/aux/proba_field_MM.tif`, and NetCDF files named as in the original R script (`January.nc`, `January_a.nc`, …).
+* **Outputs:** `data/aux/probability_field_MM.tif`, and NetCDF files `January.nc`, `January_a.nc`, … in `outputs/probability_fields_netcdf/`.
 
 ### 05 – Gap-filling (steps 2 to 7)
 

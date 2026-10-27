@@ -1,6 +1,6 @@
 ##### Snow coverage GLMM per season - fit in R (lme4) and export the coefficients #####
-##### Same models as "Model per saison1.R" (P. Timoner and C. Poussin, 2021)       #####
-##### The coefficients are then used in Python (CP_Snow_GLMM_monthly.ipynb)       #####
+##### Same models as the original R script (P. Timoner and C. Poussin, 2021)        #####
+##### The coefficients are then used in Python (03_snow_GLMM_monthly.ipynb)        #####
 #
 # Run once (or when the model changes), e.g. in a terminal:
 #   Rscript notebooks/02_fit_snow_GLMM.R      (from the repository root)
@@ -13,11 +13,11 @@
 
 library(lme4)
 
-in_rds  <- "data/stations/dfCP.rds"            # run from the repository root
-out_csv <- "data/model/glmm_R_coefs_saisons.csv"
+in_rds  <- "data/stations/stations_ndsi_snow_depth.rds"            # run from the repository root
+out_csv <- "data/model/glmm_coefficients_seasons.csv"
 dir.create(dirname(out_csv), showWarnings = FALSE)
 
-############################# Data preparation (as in Model per saison1.R) #############
+############################# Data preparation (as in the original R script) #############
 df <- readRDS(in_rds)
 df$NDSI[df$NDSI > 1] <- NA
 df$NDSI[df$NDSI < -1] <- NA
