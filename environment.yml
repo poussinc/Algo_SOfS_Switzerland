@@ -1,0 +1,24 @@
+name: snowch
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy=1.26
+  - pandas=2.3
+  - xarray=2025.3
+  - rasterio=1.4
+  - gdal=3.10
+  - pystac-client=0.8
+  - odc-stac=0.5
+  - odc-geo=0.5
+  - dask=2025.2
+  - scipy=1.15
+  - matplotlib=3.10
+  - openpyxl=3.1
+  - netcdf4=1.7
+  - nbformat=5.10
+  - folium=0.19
+  - jupyterlab
+  # R part (02_fit_snow_GLMM.R): R 4.4 + lme4 1.1-37
+  - r-base=4.4
+  - r-lme4=1.1
