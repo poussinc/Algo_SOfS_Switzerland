@@ -1,4 +1,4 @@
-# SnowCH-monthly – Monthly snow cover maps of Switzerland from Landsat and Sentinel-2
+# Algo_SOfS_Switzerland – Monthly snow cover maps of Switzerland from Landsat and Sentinel-2
 
 Code and auxiliary data to produce **monthly binary snow cover maps of Switzerland at ~30 m resolution**
 from all Landsat (5, 7, 8, 9) and Sentinel-2 observations of the [Swiss Data Cube (SDC)](https://www.swissdatacube.org).
