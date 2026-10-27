@@ -1,0 +1,10 @@
+# produced by the notebooks
+outputs/*
+!outputs/.gitkeep
+# large data downloaded from Zenodo
+data/DEM/
+data/original_binary_stacks/
+# python / jupyter
+__pycache__/
+.ipynb_checkpoints/
+*.log
