@@ -7,8 +7,8 @@ The method was developed for the period **1984–2021** with the Open Data Cube 
 This repository reproduces it in Python and continues the series **from 2022 to today**, reading the SDC
 through its **STAC** catalogue. Each step was checked against the original products (see [Validation](#validation)).
 
-> Large files (DEM, original binary stacks 1984–2021, monthly products 2022–) are on Zenodo:
-> **DOI: [to be completed]** – see [Data](#data).
+> Large files (DEM, original binary stacks 1984–2021, monthly products) are on [Yareta](https://yareta.unige.ch), the research data repository of the University of Geneva,
+> together with the original products 1984–2021: **DOI: [to be completed]** – see [Data](#data).
 
 ---
 
@@ -51,7 +51,7 @@ data/
   aux/                                  layers on the NDSI grid: Switzerland / lake masks, land cover, elevation classes,
                                         summer snow mask, 12 monthly probability fields
   sources/                              Switzerland border (swissBOUNDARIES3D), lakes, Switzerland mask, land cover / elevation classes
-  original_binary_stacks_dates.csv      date of each band of the original binary stacks 1984–2021 (Zenodo)
+  original_binary_stacks_dates.csv      date of each band of the original binary stacks 1984–2021 (Yareta)
 outputs/                                created by the notebooks
 ```
 
@@ -71,7 +71,7 @@ The notebooks are run from the `notebooks/` folder; all paths are relative to it
 | `aux/probability_field_MM.tif` | monthly probability field of calendar month MM: 1 = snow in 100 % of the clear years, 2 = no snow in 100 % of the clear years (≥ 29 clear years, 1984–2021) |
 | `aux/mask_switzerland_*.tif`, `aux/mask_lakes_*.tif` | Switzerland and lake masks used for the NDSI products |
 
-| On Zenodo (DOI: to be completed) | |
+| On Yareta (DOI: to be completed) | |
 |---|---|
 | `DEM/DEM_final_corrected.tif` | DEM used by the gap-filling (to put in `data/DEM/`) |
 | `original_binary_stacks/raster_stack_predi_*.tif` | binary products 1984–2021 of the original series, per season (to put in `data/original_binary_stacks/`, needed only by `04`) |
@@ -91,7 +91,7 @@ conda env create -f environment.yml
 conda activate snowch
 ```
 
-Download the Zenodo files into `data/DEM/` and (optionally) `data/original_binary_stacks/`.
+Download the Yareta files into `data/DEM/` and (optionally) `data/original_binary_stacks/`.
 
 ### 01 – Monthly NDSI from the SDC STAC catalogue
 
@@ -151,7 +151,7 @@ Statistics per month (probability min/median/mean/max, number of snow, no snow a
 
 ### 04 – Monthly probability fields (run once)
 
-* **Input:** the binary products of 1984–2021 (Zenodo).
+* **Input:** the binary products of 1984–2021 (Yareta).
 * **Rule:** for each calendar month, a pixel is set to
   * 1 if it is snow in 100 % of its clear years;
   * 2 if it is no snow in 100 % of its clear years;
@@ -224,10 +224,10 @@ The remaining 0.01 % differences come from the 100 m elevation bands (`DEM100`),
 If you use this code or the products, please cite:
 
 * Poussin, C. et al. (to be completed) – article describing the method.
-* Zenodo record of the data (DOI to be completed).
+* Yareta dataset of the products (DOI to be completed).
 
 GLMM: P. Timoner and C. Poussin (2021). Swiss Data Cube: UNEP/GRID-Geneva and University of Geneva.
 
 ## License
 
-Code: MIT (see `LICENSE`). Data: see the Zenodo record.
+Code: MIT (see `LICENSE`). Data: see the Yareta dataset.

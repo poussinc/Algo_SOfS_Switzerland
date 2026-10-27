@@ -1,7 +1,7 @@
 # produced by the notebooks
 outputs/*
 !outputs/.gitkeep
-# large data downloaded from Zenodo
+# large data downloaded from Yareta
 data/DEM/
 data/original_binary_stacks/
 # python / jupyter
