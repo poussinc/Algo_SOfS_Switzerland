@@ -7,8 +7,7 @@ The method was developed for the period **1984–2021** with the Open Data Cube 
 This repository reproduces it in Python and continues the series **from 2022 to today**, reading the SDC
 through its **STAC** catalogue. 
 
-> Large files (DEM, original binary stacks 1984–2021, monthly products) are on [Yareta](https://yareta.unige.ch), the research data repository of the University of Geneva,
-> together with the original products 1984–2021: **DOI: [to be completed]** – see [Data](#data).
+> Large files (monthly products from 1984-2026) are on [Yareta](https://yareta.unige.ch), the research data repository of the University of Geneva,
 
 ---
 
@@ -71,12 +70,9 @@ The notebooks are run from the `notebooks/` folder; all paths are relative to it
 | `aux/probability_field_MM.tif` | monthly probability field of calendar month MM: 1 = snow in 100 % of the clear years, 2 = no snow in 100 % of the clear years (≥ 29 clear years, 1984–2021) |
 | `aux/mask_switzerland_*.tif`, `aux/mask_lakes_*.tif` | Switzerland and lake masks used for the NDSI products |
 
-| On Yareta (DOI: to be completed) | |
+| On Yareta (https://doi.org/10.26037/yareta:ab6oml4vrfafflzk7hck2jh5py) | |
 |---|---|
-| `DEM/DEM_final_corrected.tif` | DEM used by the gap-filling (to put in `data/DEM/`) |
-| `original_binary_stacks/raster_stack_predi_*.tif` | binary products 1984–2021 of the original series, per season (to put in `data/original_binary_stacks/`, needed only by `04`) |
-| `products/Snow_monthly_binary/` | binary monthly products 2022– (output of `03`) |
-| `products/Snow_monthly_gapfilled/` | final gap-filled monthly products 2022– (output of `05`) and their statistics |
+| `products/Snow_monthly_gapfilled/` | final gap-filled monthly products 2022– (output of `05`)|
 
 The monthly NDSI products (~0.5 GB per month) are not archived: they can be recomputed with `01`.
 
@@ -91,8 +87,6 @@ conda env create -f environment.yml
 conda activate snowch
 ```
 
-Download the Yareta files into `data/DEM/` and (optionally) `data/original_binary_stacks/`.
-
 ### 01 – Monthly NDSI from the SDC STAC catalogue
 
 * **Catalogue:** `https://explorer.swissdatacube.org/stac`.
@@ -104,11 +98,6 @@ Download the Yareta files into `data/DEM/` and (optionally) `data/original_binar
   | `landsat_etm_c2_l2` | Landsat 7 | until 30 May 2003 (SLC failure) |
   | `landsat_ot_c2_l2` | Landsat 8 and 9 | 2013– |
   | `s2_l2` | Sentinel-2 | June 2015– |
-* **Reflectance and bands:**
-  * Landsat Collection 2 surface reflectance = DN × 0.0000275 − 0.2;
-  * Sentinel-2 = DN / 10,000;
-  * green / SWIR1 = SR_B2 / SR_B5 (L5, L7), SR_B3 / SR_B6 (L8, L9), B03 / B11 (S2);
-  * negative reflectances are removed.
 * **Cloud masks:**
   * **Landsat** (`QA_PIXEL`): clear, water or snow pixels, with cloud and cirrus confidence ≤ low, and no fill, cloud, dilated cloud, cirrus or cloud shadow;
   * **Sentinel-2** (`SCL`): classes 4, 5, 6, 7, 11 (vegetation, not vegetated, water, unclassified, snow).
@@ -174,8 +163,6 @@ Statistics per month (probability min/median/mean/max, number of snow, no snow a
 * Steps 6 and 7 do not fill the first and last rows and columns of each half.
 * Steps 6 and 7 only re-examine the clouds next to the pixels changed in the previous iteration. The result is identical to re-scanning the whole raster, and a month takes ~20 s for all of Switzerland.
 
-**DEM:** `DEM_final` of the original products. About 15,500 pixels that differ by more than 600 m from swissALTI3D (holes filled with 0–230 m in the Alps) are replaced by swissALTI3D (`DEM_final_corrected.tif`).
-
 **Output:** `Snow_gapfilled_<year>_<month>.tif` (uint8):
 
 | Code | Meaning |
@@ -196,37 +183,15 @@ Recent months may be incomplete in the SDC (e.g. the Landsat scenes of September
 
 ---
 
-## Validation
-
-The Python workflow was compared with the original products (R / Open Data Cube), using the **same inputs**:
-
-| Step | Comparison | Result |
-|---|---|---|
-| GLMM + binary product | November 2020, Python with the R coefficients vs. the original R map | 98.9 % identical pixels (the difference comes from the 6199 vs. 6200 rows of the grids) |
-| Monthly probability fields | % of pixels per month vs. the original R script | identical within 0.003 % |
-| Step 2 | 44 months (DJF, western half) | identical pixel by pixel |
-| Step 3 | 44 months | identical (cloud pixels identical pixel by pixel) |
-| Steps 4–7 | 24 months × 2 halves (all seasons, 1985–2021) vs. the original statistics | cloud / snow / no-snow % identical within 0.01 % |
-| Step 5 | HSmin / HSmax, 1985–2021 | identical (JJA: 90/90 months western half with 0.1 %, 85/85 eastern half with 1 %) |
-
-The remaining 0.01 % differences come from the 100 m elevation bands (`DEM100`), which are 99.9 % identical to the original ones (the original file was lost).
-
-**STAC vs. Open Data Cube** (November 2020):
-* The STAC catalogue contains **more Sentinel-2 observations** than the former SDC: in the median, 4 clear observations per pixel vs. 2.
-* The binary product therefore has fewer clouds: 7.6 % vs. 12.1 % (western half), 6.9 % vs. 12.6 % (eastern half).
-* The monthly maximum is slightly higher, since there are more chances to observe snow.
-* Sentinel-2 Scene Classification sometimes labels clouds as snow (class 11), which is kept as valid, as in the original method.
-
----
-
 ## Citation
 
 If you use this code or the products, please cite:
 
-* Poussin, C. et al. (to be completed) – article describing the method.
-* Yareta dataset of the products (DOI to be completed).
+* Poussin, C. et al. (2023) – article describing the GLMM method.
+* Poussin, C. et al. (2024) – article describing the method.
+* Yareta dataset of the products ( https://doi.org/10.26037/yareta:ab6oml4vrfafflzk7hck2jh5py).
 
-GLMM: P. Timoner and C. Poussin (2021). Swiss Data Cube: UNEP/GRID-Geneva and University of Geneva.
+Swiss Data Cube: UNEP/GRID-Geneva and University of Geneva.
 
 ## License
 
