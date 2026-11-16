@@ -5,7 +5,7 @@ from all Landsat (5, 7, 8, 9) and Sentinel-2 observations of the [Swiss Data Cub
 
 The method was developed for the period **1984–2021** with the Open Data Cube version of the SDC.
 This repository reproduces it in Python and continues the series **from 2022 to today**, reading the SDC
-through its **STAC** catalogue. Each step was checked against the original products (see [Validation](#validation)).
+through its **STAC** catalogue. 
 
 > Large files (DEM, original binary stacks 1984–2021, monthly products) are on [Yareta](https://yareta.unige.ch), the research data repository of the University of Geneva,
 > together with the original products 1984–2021: **DOI: [to be completed]** – see [Data](#data).
